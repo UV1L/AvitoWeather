@@ -16,7 +16,7 @@ class MainDaggerModule {
 
     companion object {
 
-        const val BASE_URL = "http://api.weatherapi.com/v1/"
+        const val BASE_URL = "https://api.weatherapi.com/v1/"
     }
 
     @Provides

@@ -1,6 +1,7 @@
 package com.example.data.retrofit
 
-import kotlinx.coroutines.flow.Flow
+import com.example.data.entities.WeatherPojo
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,5 +12,5 @@ interface RetrofitService {
         @Query("key") api_key: String,
         @Query("q") city_name: String,
         @Query("aqi") air_quality: Boolean = false
-    ): Flow<List<Any>>
+    ): Call<WeatherPojo>
 }
