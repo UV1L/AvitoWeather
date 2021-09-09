@@ -6,7 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherUseCase {
 
-    var data: Flow<Weather>?
-
-    suspend fun execute(cityName: String)
+    suspend fun execute(cityName: String): Flow<Weather>
 }

@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
 
-    suspend fun getWeather(cityName: String): Flow<Weather>?
+    suspend fun getWeather(cityName: String): Flow<Weather>
 }

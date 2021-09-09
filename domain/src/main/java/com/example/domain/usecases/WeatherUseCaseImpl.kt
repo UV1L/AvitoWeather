@@ -8,17 +8,8 @@ import kotlinx.coroutines.withContext
 
 class WeatherUseCaseImpl(private val weatherRepository: WeatherRepository) : WeatherUseCase {
 
-    override var data: Flow<Weather>? = null
+    override suspend fun execute(cityName: String): Flow<Weather> {
 
-    override suspend fun execute(cityName: String) {
-
-        val weather = withContext(Dispatchers.IO) {
-
-            weatherRepository.getWeather(cityName)
-        }
-
-        weather?.let {
-            data = weather
-        }
+        return weatherRepository.getWeather(cityName)
     }
 }

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:soundEffectsEnabled="false">
 
     <TextView
         android:id="@+id/header_title"
@@ -31,12 +33,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:src="@drawable/weather_good_ic"/>
 
-    <TextView
-        android:id="@+id/fragment_main_temp_txt_view"
-        android:layout_width="0dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_main_text_input_layout"
+        style="@style/TextInputLayoutRoundedCornersStroke3"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/weather_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/weather_icon"
+        app:boxCornerRadiusTopStart="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        android:hint="Город"
+        app:startIconDrawable="@drawable/ic_buildings"
+        android:focusableInTouchMode="true"
+        android:focusable="true">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fragment_main_edit_txt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:maxLines="2"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/fragment_main_tab_layout"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        app:layout_constraintTop_toBottomOf="@id/fragment_main_text_input_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="35dp"
+        android:background="@drawable/tab_layout_rounded_corners_shape" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/fragment_main_view_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/fragment_main_tab_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

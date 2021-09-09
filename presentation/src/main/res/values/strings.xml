@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AvitoWeather</string>
+    <string name="weather_for_today">Погода на сегодня:</string>
 </resources>

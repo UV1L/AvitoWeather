@@ -2,7 +2,7 @@ package com.example.avitoweather
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.avitoweather.ui.fragments.MainPageFragment
+import com.example.avitoweather.ui.fragments.main_page.MainPageFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,7 +11,6 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager.beginTransaction()
             .add(R.id.main_fragment_container, MainPageFragment.instance())
-            .addToBackStack(null)
-            .commit()
+            .commitNow()
     }
 }

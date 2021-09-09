@@ -7,10 +7,13 @@ import retrofit2.http.Query
 
 interface RetrofitService {
 
-    @GET("current.json")
+    @GET("forecast.json")
     fun getWeather(
-        @Query("key") api_key: String,
-        @Query("q") city_name: String,
-        @Query("aqi") air_quality: Boolean = false
+        @Query("key") apiKey: String,
+        @Query("q") cityName: String,
+        @Query("days") days: Int = 7,
+        @Query("aqi") air_quality: Boolean = false,
+        @Query("alerts") alerts: Boolean = false,
+        @Query("lang") lang: String = "ru"
     ): Call<WeatherPojo>
 }

@@ -1,16 +1,20 @@
-package com.example.avitoweather.ui.fragments
+package com.example.avitoweather.ui.fragments.main_page
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewpager.widget.ViewPager
 import com.example.avitoweather.R
 import com.example.avitoweather.di.MyApplication
 import com.example.avitoweather.vm.WeatherViewModel
 import com.example.avitoweather.vm.WeatherViewModelFactory
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class MainPageFragment : Fragment()  {
 
@@ -40,11 +44,27 @@ class MainPageFragment : Fragment()  {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tempTxtView = requireView().findViewById<TextView>(R.id.fragment_main_temp_txt_view)
+        setEditTxtListener()
+        setupTabLayout()
+    }
 
-        viewModel.loadWeather("Moscow")
-        viewModel.weather.observe(viewLifecycleOwner) {
-            tempTxtView.text = it.tempC.toString()
+    private fun setEditTxtListener() {
+        val editTxt = requireView().findViewById<TextInputEditText>(R.id.fragment_main_edit_txt)
+
+        editTxt.doOnTextChanged { text, _, _, _ ->
+
+            viewModel.loadWeather(text.toString())
         }
+
+        requireView().setOnClickListener {
+            editTxt.clearFocus()
+        }
+    }
+
+    private fun setupTabLayout() {
+        val viewPager = requireView().findViewById<ViewPager>(R.id.fragment_main_view_pager)
+        viewPager.adapter = WeatherPagerAdapter(parentFragmentManager)
+        val tabLayout = requireView().findViewById<TabLayout>(R.id.fragment_main_tab_layout)
+        tabLayout.setupWithViewPager(viewPager)
     }
 }
