@@ -1,13 +1,17 @@
 package com.example.data
 
-import com.example.data.entities.CurrentPojo
 import com.example.data.entities.WeatherPojo
 import com.example.data.retrofit.RetrofitService
 import com.example.domain.entities.Weather
 import com.example.domain.repositories.WeatherRepository
-import kotlinx.coroutines.*
+import com.example.extensions.Extensions.Resource
+import com.example.extensions.WeatherForecast
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.io.IOException
 
 class WeatherRepositoryImpl(private val retrofitService: RetrofitService) : WeatherRepository {
 
@@ -16,29 +20,48 @@ class WeatherRepositoryImpl(private val retrofitService: RetrofitService) : Weat
         private const val API_KEY = "72f6fd38310a4e2aae8155022210309"
     }
 
-    override suspend fun getWeather(cityName: String): Flow<Weather> {
+    override suspend fun getWeather(cityName: String): Flow<Resource<Weather>> = flow {
 
-        val weatherDeferred = CoroutineScope(Dispatchers.IO).async {
+        emit(Resource.Loading<Weather>())
+
+        val response = withContext(IO) {
 
             val weatherCall = retrofitService.getWeather(apiKey = API_KEY, cityName = cityName)
 
-            val response =
-                runCatching {
-                    weatherCall.execute()
-                }.getOrNull()
-
-            return@async if (response?.isSuccessful == true)
-                flow {
-
-                    emit(
-                        WeatherMapper.getWeather(response.body()!!)
-                    )
-                }
-            else flow {}
+            runCatching {
+                weatherCall.execute()
+            }.getOrNull()
         }
 
-        return weatherDeferred.await()
+        try {
+            val weather = WeatherMapper.getWeather(response!!.body()!!)
+            emit(Resource.Success<Weather>(weather))
+        } catch (e: HttpException) {
+            emit(Resource.Error<Weather>(e.localizedMessage ?: "Something went wrong"))
+        } catch (e: IOException) {
+            emit(Resource.Error<Weather>("Couldn't reach server"))
+        } catch (e: Throwable) {
+            emit(Resource.Error<Weather>("Couldn't reach server"))
+        }
     }
+
+//    override suspend fun getWeather(cityName: String): Flow<Resource<Weather>> = flowOf(Resource.Loading<Weather>())
+//        .map { retrofitService.getWeather(apiKey = API_KEY, cityName = cityName) }
+//        .map {
+//
+//            try {
+//                val weather = WeatherMapper.getWeather(response!!.body()!!)
+//                Resource.Success<Weather>(weather)
+//            } catch (e: HttpException) {
+//                Resource.Error<Weather>(e.localizedMessage ?: "Something went wrong")
+//            } catch (e: IOException) {
+//                Resource.Error<Weather>("Couldn't reach server")
+//            } catch (e: Throwable) {
+//                Resource.Error<Weather>("Couldn't reach server")
+//            }
+//        }
+//        .flowOn(IO)
+//    }
 }
 
 private class WeatherMapper {
@@ -47,16 +70,19 @@ private class WeatherMapper {
 
         fun getWeather(weatherPojo: WeatherPojo): Weather {
 
-            val forecastTempC = mutableListOf<Float>()
+            val forecast = mutableListOf<WeatherForecast>()
 
             weatherPojo.forecast.forecastDay.forEach {
-                forecastTempC.add(it.day.avgTempC.toFloat())
+                forecast.add(
+                    WeatherForecast(Pair(it.day.avgTempC.toFloat(), it.day.condition.text))
+                )
             }
 
             return Weather(
                 weatherPojo.forecast.forecastDay.first().date,
                 weatherPojo.current.tempC.toFloat(),
-                forecastTempC
+                weatherPojo.current.condition.text,
+                forecast
             )
         }
     }

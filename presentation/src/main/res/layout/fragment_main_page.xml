@@ -17,11 +17,8 @@
         android:text="AvitoWeather"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:textColor="#4DEAFF"
-        android:shadowColor="@color/black"
-        android:shadowDx="2"
-        android:shadowDy="1"
-        android:shadowRadius="1"
+        android:fontFamily="@font/lato_black"
+        android:textColor="@color/black"
         android:textAlignment="center" />
 
     <ImageView
@@ -58,6 +55,17 @@
             android:maxLines="2"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ImageButton
+        android:id="@+id/fragment_main_search_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintTop_toTopOf="@id/fragment_main_text_input_layout"
+        app:layout_constraintBottom_toBottomOf="@id/fragment_main_text_input_layout"
+        app:layout_constraintStart_toEndOf="@id/fragment_main_text_input_layout"
+        android:src="@drawable/ic_search"
+        android:scaleType="fitXY"
+        android:background="@android:color/transparent"/>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/fragment_main_tab_layout"
         android:layout_width="0dp"
@@ -66,7 +74,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="35dp"
-        android:background="@drawable/tab_layout_rounded_corners_shape" />
+        android:background="@drawable/tab_layout_rounded_corners_shape"
+        android:visibility="invisible"/>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/fragment_main_view_pager"

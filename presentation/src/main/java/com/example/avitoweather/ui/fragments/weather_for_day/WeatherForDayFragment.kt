@@ -5,25 +5,45 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.avitoweather.R
 import com.example.avitoweather.di.MyApplication
-import com.example.avitoweather.ui.fragments.weather_for_week.WeekDayName
 import com.example.avitoweather.vm.WeatherViewModel
 import com.example.avitoweather.vm.WeatherViewModelFactory
 import com.example.domain.entities.Weather
-import org.w3c.dom.Text
-import java.text.SimpleDateFormat
-import java.util.*
 
 class WeatherForDayFragment(private val position: Int = -1) : Fragment() {
 
     private lateinit var viewModel: WeatherViewModel
+
+    private val weatherContainer: ConstraintLayout?
+        get() = view?.findViewById(R.id.fragment_day_weather_container)
+
+    private val weatherForDayTxt: TextView?
+        get() = view?.findViewById(R.id.fragment_day_weather_txt)
+
+    private val tempTxtView: TextView?
+        get() = view?.findViewById(R.id.fragment_day_temp_txt_view)
+
+    private val tempLabel: CardView?
+        get() = view?.findViewById(R.id.fragment_day_temp_label)
+
+    private val weatherDescription: TextView?
+        get() = view?.findViewById(R.id.fragment_day_weather_description)
+
+    private val errorContainer: ConstraintLayout?
+        get() = view?.findViewById(R.id.fragment_day_error_container)
+
+    private val errorMsg: TextView?
+        get() = view?.findViewById(R.id.fragment_day_error_msg)
+
+
+    private val pbContainer: ConstraintLayout?
+        get() = view?.findViewById(R.id.fragment_day_pb_container)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,37 +66,81 @@ class WeatherForDayFragment(private val position: Int = -1) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val weatherForDayTxt = requireView().findViewById<TextView>(R.id.fragment_main_weather_txt)
+        removeUnnecessaryView()
+        observeAll()
+    }
+
+    private fun removeUnnecessaryView() {
 
         if (position != -1)
-            weatherForDayTxt.visibility = TextView.GONE
+            weatherForDayTxt?.visibility = View.GONE
+    }
+
+    private fun observeAll() {
 
         viewModel.weather.observe(viewLifecycleOwner) { weather ->
-            if (weather != null) {
+
+            if (weather != null)
                 setWeatherText(weather)
-            }
+        }
+
+        viewModel.exceptions.observe(viewLifecycleOwner) { errorMessage ->
+
+            if (errorMessage != "")
+                setVisibilitiesWhenException(errorMessage)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { flag ->
+
+            if (flag)
+                setVisibilitiesWhenLoading()
         }
     }
 
     private fun setWeatherText(weather: Weather) {
 
-        val weatherForDayTxt = requireView().findViewById<TextView>(R.id.fragment_main_weather_txt)
-        val tempTxtView = requireView().findViewById<TextView>(R.id.fragment_main_temp_txt_view)
-        val tempLabel = requireView().findViewById<CardView>(R.id.fragment_main_temp_label)
-        tempLabel.visibility = CardView.VISIBLE
+        setVisibilitiesWhenSuccess()
 
-        if (position == -1)
-            tempTxtView.text = weather.tempC.toInt().toString()
-        else
-            //мне пришлось сделать здесь try catch потому что я в самый последний момент понял, что
-                // выбранное мною API, кажется, сломано, и выдает погоду только на 3 дня вместо 7
+        if (position == -1) {
+            weatherForDayTxt?.visibility = View.VISIBLE
+            tempTxtView?.text = weather.tempC.toInt().toString()
+            weatherDescription?.text = weather.description
+        } else
+        //мне пришлось сделать здесь try catch потому что я в самый последний момент понял, что
+        // выбранное мною API, кажется, сломано, и выдает погоду только на 3 дня вместо 7
             try {
-                tempTxtView.text = weather.forecast[position].toInt().toString()
+                weatherForDayTxt?.visibility = View.GONE
+                val forecast = weather.forecast[position]
+                tempTxtView?.text = forecast.tempC.toInt().toString()
+                weatherDescription?.text = forecast.description
             } catch (e: IndexOutOfBoundsException) {
-                weatherForDayTxt.visibility = TextView.VISIBLE
-                weatherForDayTxt.text = "Не удалось загрузить погоду на выбранный день :("
-                tempLabel.visibility = CardView.GONE
+                setVisibilitiesWhenException("На выбранный день нет погоды")
                 Log.d("no date", "Не удается загрузить погоду")
             }
+    }
+
+    private fun setVisibilitiesWhenSuccess() {
+
+        viewModel.unsetLoading()
+        pbContainer?.visibility = View.GONE
+        errorContainer?.visibility = View.GONE
+        weatherContainer?.visibility = View.VISIBLE
+        tempTxtView?.visibility = View.VISIBLE
+        tempLabel?.visibility = View.VISIBLE
+    }
+
+    private fun setVisibilitiesWhenException(errorMessage: String) {
+
+        weatherContainer?.visibility = View.GONE
+        pbContainer?.visibility = View.GONE
+        errorContainer?.visibility = View.VISIBLE
+        errorMsg?.text = errorMessage
+    }
+
+    private fun setVisibilitiesWhenLoading() {
+
+        weatherContainer?.visibility = View.GONE
+        errorContainer?.visibility = View.GONE
+        pbContainer?.visibility = View.VISIBLE
     }
 }
